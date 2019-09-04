@@ -6,5 +6,7 @@ import (
 )
 
 func Register(app *iris.Application) {
-	app.Post("/download",controller.Download)
+	app.Post("/download", controller.Download)
+
+	app.Get("/dow-data", controller.GetData)
 }

@@ -14,12 +14,12 @@ type M3U8Success struct {
 }
 
 type Task struct { // 任务下发时返回信息
-	Code int `json:"code"` // 代码 200正确 503服务器任务队列已满(客户端需等待)
+	Code int    `json:"code"` // 代码 200正确 503服务器任务队列已满(客户端需等待)
 	Msg  string `json:"msg"`  // 消息
 }
 
-
 var (
-	TaskOk = Task{Code:200,Msg:"任务下发完成"}
-	TaskError = Task{Code:503,Msg:"任务队列已满"}
+	TaskOk       = Task{Code: 200, Msg: "任务下发完成"}
+	TaskError    = Task{Code: 503, Msg: "任务队列已满"}
+	TaskErrorReq = Task{Code: 400, Msg: "参数错误"}
 )

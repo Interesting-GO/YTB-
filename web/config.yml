@@ -4,9 +4,16 @@ app:
   host: "0.0.0.0:8083"
   debug: true
   max_request: 1000
+  task_num: 20
 
 mysql:
   dsn: "root:123456@(127.0.0.1:3306)/pre_cartoon_cms?charset=utf8"
+
+pgsql:
+  dsn: "user=dollarkiller password=123456 dbname=ytbvideo1 host=127.0.0.1 port=5432 sslmode=disable"
+  max_idle: 10 # 最大闲置链接数
+  max_open: 100 # 最大链接数
+  time_out: 4 # 超时 Hour
 
 redis:
   maxidle: 50 # 连接池中最大空闲连接数量

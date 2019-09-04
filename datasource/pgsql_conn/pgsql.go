@@ -2,7 +2,9 @@ package pgsql_conn
 
 import (
 	"YTB-/config"
+	"YTB-/datamodels"
 	"github.com/dollarkillerx/beegoorm"
+	_ "github.com/lib/pq"
 )
 
 var (
@@ -13,7 +15,7 @@ var (
 func init() {
 
 	err = beegoorm.RegisterDataBase("default", "postgres",
-		"user=navi password=psql233 dbname=navi host=localhost port=5432 sslmode=disable")
+		config.MyConfig.Pgsql.Dsn)
 	if err != nil {
 		panic(err.Error())
 	}
@@ -21,18 +23,21 @@ func init() {
 	beegoorm.SetMaxOpenConns("default", config.MyConfig.Pgsql.MaxOpen)
 	beegoorm.SetMaxIdleConns("default", config.MyConfig.Pgsql.MaxIdle)
 
-	PgDb = beegoorm.NewOrm()
+	if config.MyConfig.App.Debug {
+		beegoorm.Debug = true
+	}
 
 	mapping()
+
+	PgDb = beegoorm.NewOrm()
+
 
 }
 
 // 数据库映射
 func mapping() {
-
-
 	// register model  注册模型
-	beegoorm.RegisterModel()
+	beegoorm.RegisterModel(new(datamodels.Video))
 
 	// 完成映射
 	err = beegoorm.RunSyncdb("default", false, true)

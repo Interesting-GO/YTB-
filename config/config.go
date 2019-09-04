@@ -13,6 +13,7 @@ type myconf struct {
 		Debug      bool   `yaml:"debug"`
 		MaxRequest int    `yaml:"max_request"`
 		LogLevel   string `yaml:"log_level"`
+		TaskNum    int    `yaml:"task_num"`
 	}
 	Mysql struct {
 		Dsn   string `yaml:"dsn"`

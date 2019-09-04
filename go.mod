@@ -4,11 +4,12 @@ go 1.12
 
 require (
 	github.com/BurntSushi/toml v0.3.1 // indirect
-	github.com/Interesting-GO/youtubetools v0.0.0-20190903061517-cd9759f4a8a0 // indirect
+	github.com/Interesting-GO/youtubetools v0.0.0-20190903061517-cd9759f4a8a0
 	github.com/Joker/jade v1.0.0 // indirect
 	github.com/Shopify/goreferrer v0.0.0-20181106222321-ec9c9a553398 // indirect
 	github.com/aymerick/raymond v2.0.2+incompatible // indirect
-	github.com/dollarkillerx/beegoorm v0.0.0-20190901011125-88dd29471457 // indirect
+	github.com/dollarkillerx/beegoorm v0.0.0-20190901011125-88dd29471457
+	github.com/dollarkillerx/easyutils v0.0.0-20190903032916-d93cf4ae6720
 	github.com/eknkc/amber v0.0.0-20171010120322-cdade1c07385 // indirect
 	github.com/fatih/structs v1.1.0 // indirect
 	github.com/flosch/pongo2 v0.0.0-20190707114632-bbf5a6c351f4 // indirect
@@ -22,7 +23,7 @@ require (
 	github.com/kataras/pio v0.0.0-20190103105442-ea782b38602d // indirect
 	github.com/klauspost/compress v1.8.1 // indirect
 	github.com/klauspost/cpuid v1.2.1 // indirect
-	github.com/lib/pq v1.2.0 // indirect
+	github.com/lib/pq v1.2.0
 	github.com/microcosm-cc/bluemonday v1.0.2 // indirect
 	github.com/ryanuber/columnize v2.1.0+incompatible // indirect
 	github.com/shurcooL/sanitized_anchor_name v1.0.0 // indirect
