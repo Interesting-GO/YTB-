@@ -11,17 +11,21 @@ import (
 	"github.com/dollarkillerx/easyutils"
 	"github.com/dollarkillerx/easyutils/clog"
 	"github.com/kataras/iris"
+	"log"
 	"strconv"
 	"strings"
 	"time"
 )
 
 var (
+	num int
 	dataChan chan *defs.YouTuBeRsq
 )
 
 func init() {
 	dataChan = make(chan *defs.YouTuBeRsq, config.MyConfig.App.TaskNum)
+	log.Print("队列初始化成功！")
+	num = 0
 }
 
 func Download(ctx iris.Context) {
@@ -31,6 +35,8 @@ func Download(ctx iris.Context) {
 		resp.Resp(ctx, defs.TaskErrorReq)
 		return
 	}
+
+	clog.Println(input)
 
 	// 判断参数是否错误
 	if strings.Index(input.Url, "https://") == -1 {
@@ -129,6 +135,8 @@ func dow(data *defs.YouTuBeRsq) {
 	if e != nil {
 		clog.Println("sql 生成错误")
 	}
+	num += 1
+	clog.Println("下载成功   第: " + strconv.Itoa(num))
 }
 
 
