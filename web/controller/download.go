@@ -7,6 +7,7 @@ import (
 	"YTB-/defs"
 	"YTB-/resp"
 	"github.com/Interesting-GO/youtubetools/video_dow"
+	"github.com/dollarkillerx/beegoorm"
 	"github.com/dollarkillerx/easyutils"
 	"github.com/dollarkillerx/easyutils/clog"
 	"github.com/kataras/iris"
@@ -34,6 +35,14 @@ func Download(ctx iris.Context) {
 	// 判断参数是否错误
 	if strings.Index(input.Url, "https://") == -1 {
 		resp.Resp(ctx, defs.TaskErrorReq)
+		return
+	}
+
+	// 查询数据是否存在如果存在则跳过
+	exit := GetDataExit(input.Id)
+	if !exit {
+		// 如果存在就返回任务以存在
+		resp.Resp(ctx, defs.Task{Code:400,Msg:"任务以存在"})
 		return
 	}
 
@@ -120,4 +129,15 @@ func dow(data *defs.YouTuBeRsq) {
 	if e != nil {
 		clog.Println("sql 生成错误")
 	}
+}
+
+
+func GetDataExit(id string) bool {
+	data := datamodels.Video{VideoId:id}
+	err := pgsql_conn.PgDb.Read(&data)
+	if err == beegoorm.ErrNoRows {
+		return true
+	}
+
+	return false
 }
