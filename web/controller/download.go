@@ -7,7 +7,6 @@ import (
 	"YTB-/defs"
 	"YTB-/resp"
 	"github.com/Interesting-GO/youtubetools/video_dow"
-	"github.com/dollarkillerx/beegoorm"
 	"github.com/dollarkillerx/easyutils"
 	"github.com/dollarkillerx/easyutils/clog"
 	"github.com/kataras/iris"
@@ -30,8 +29,9 @@ func init() {
 
 func Download(ctx iris.Context) {
 	input := defs.YouTuBeRsq{}
-	err := ctx.ReadForm(input)
+	err := ctx.ReadForm(&input)
 	if err != nil {
+		log.Println(err.Error())
 		resp.Resp(ctx, defs.TaskErrorReq)
 		return
 	}
@@ -61,6 +61,8 @@ func Download(ctx iris.Context) {
 		return
 	} else {
 		dataChan <- &input
+
+		resp.Resp(ctx, defs.TaskOk)
 	}
 
 }
@@ -95,8 +97,10 @@ func dow(data *defs.YouTuBeRsq) {
 	}
 
 	name := easyutils.SuperRand()
-	path := "./video/" + s + "/" + name + ".mp4"
-	pathurl := "/" + s + "/" + name + ".mp4"
+	path := "./video/" + s + "/"
+	pathurl := "/" + s + "/"
+
+
 
 	e = easyutils.DirPing(path)
 	if e != nil {
@@ -109,16 +113,17 @@ func dow(data *defs.YouTuBeRsq) {
 
 	k := 0
 	for {
-		e := video_dow.YoutubeDow(data.Url, pathurl, "127.0.0.1:8001")
+		e := video_dow.YoutubeDow(data.Url, path + name + ".mp4", "127.0.0.1:8001")
 		if e != nil {
 			k += 1
 			if k < 10 {
 				clog.Println("=================下载失败进行尝试   " + strconv.Itoa(k))
+				log.Println(e.Error())
 				time.Sleep(time.Second * 10)
-				break
+				continue
 			} else {
 				// 入库标记下载失败
-				data := datamodels.Video{VideoId: data.Id, Name: data.Name, Path: ""}
+				data := datamodels.Video{VideoId: data.Id, Name: data.Name, Path: e.Error()}
 				_, e := pgsql_conn.PgDb.Insert(&data)
 				if e != nil {
 					clog.Println("sql 生成错误")
@@ -126,11 +131,13 @@ func dow(data *defs.YouTuBeRsq) {
 				return
 			}
 
+		}else {
+			break
 		}
 	}
 	// 下载完毕 入库
 
-	datas := datamodels.Video{VideoId: data.Id, Name: data.Name, Path: pathurl}
+	datas := datamodels.Video{VideoId: data.Id, Name: data.Name, Path: pathurl + name + ".mp4"}
 	_, e = pgsql_conn.PgDb.Insert(&datas)
 	if e != nil {
 		clog.Println("sql 生成错误")
@@ -141,11 +148,9 @@ func dow(data *defs.YouTuBeRsq) {
 
 
 func GetDataExit(id string) bool {
-	data := datamodels.Video{VideoId:id}
-	err := pgsql_conn.PgDb.Read(&data)
-	if err == beegoorm.ErrNoRows {
-		return true
-	}
-
-	return false
+	data := new(datamodels.Video)
+	table := pgsql_conn.PgDb.QueryTable(data)
+	exist := table.Filter("video_id", id).Exist()
+	log.Println(exist)
+	return !exist
 }
