@@ -8,7 +8,6 @@ import (
 )
 
 var (
-	PgDb beegoorm.Ormer
 	err  error
 )
 
@@ -29,9 +28,14 @@ func init() {
 
 	mapping()
 
-	PgDb = beegoorm.NewOrm()
 
 
+
+}
+
+func PgDb() beegoorm.Ormer {
+	PgDb := beegoorm.NewOrm()
+	return PgDb
 }
 
 // 数据库映射

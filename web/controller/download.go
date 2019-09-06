@@ -6,6 +6,7 @@ import (
 	"YTB-/datasource/pgsql_conn"
 	"YTB-/defs"
 	"YTB-/resp"
+	"fmt"
 	"github.com/Interesting-GO/youtubetools/video_dow"
 	"github.com/dollarkillerx/easyutils"
 	"github.com/dollarkillerx/easyutils/clog"
@@ -57,9 +58,12 @@ func Download(ctx iris.Context) {
 	// 如果存在就加入下载队列
 
 	// 判断队伍是否满载
+	fmt.Println(len(dataMax))
+	fmt.Println(config.MyConfig.App.TaskNum)
 	if len(dataMax) >= config.MyConfig.App.TaskNum {
 		// 队伍满载 返回繁忙信息
 		resp.Resp(ctx, defs.TaskError)
+		fmt.Println("进入满载环节")
 		return
 	} else {
 		dataChan <- &input
@@ -73,7 +77,7 @@ func Download(ctx iris.Context) {
 func GetData(ctx iris.Context) {
 	// 向数据库查询数据
 	var datas []*datamodels.Video
-	_, e := pgsql_conn.PgDb.QueryTable("video").All(&datas)
+	_, e := pgsql_conn.PgDb().QueryTable("video").All(&datas)
 	if e != nil {
 		ctx.StatusCode(500)
 		ctx.JSON("数据查询错误")
@@ -93,6 +97,9 @@ func DowTask() {
 
 // 下载阶段
 func dow(data *defs.YouTuBeRsq) {
+	defer func() {
+		<-dataMax
+	}()
 	// 获取当前时间  生成目录地址
 	s, e := easyutils.TimeGetTimeToString(easyutils.TimeGetNowTimeStr())
 	if e != nil {
@@ -125,7 +132,7 @@ func dow(data *defs.YouTuBeRsq) {
 			} else {
 				// 入库标记下载失败
 				data := datamodels.Video{VideoId: data.Id, Name: data.Name, Path: e.Error()}
-				_, e := pgsql_conn.PgDb.Insert(&data)
+				_, e := pgsql_conn.PgDb().Insert(&data)
 				if e != nil {
 					clog.Println("sql 生成错误")
 				}
@@ -140,18 +147,18 @@ func dow(data *defs.YouTuBeRsq) {
 	// 下载完毕 入库
 
 	datas := datamodels.Video{VideoId: data.Id, Name: data.Name, Path: pathurl + name + ".mp4"}
-	_, e = pgsql_conn.PgDb.Insert(&datas)
+	_, e = pgsql_conn.PgDb().Insert(&datas)
 	if e != nil {
 		clog.Println("sql 生成错误")
 	}
 	num += 1
 	clog.Println("下载成功   第: " + strconv.Itoa(num))
-	<-dataMax
+
 }
 
 func GetDataExit(id string) bool {
 	data := new(datamodels.Video)
-	table := pgsql_conn.PgDb.QueryTable(data)
+	table := pgsql_conn.PgDb().QueryTable(data)
 	exist := table.Filter("video_id", id).Exist()
 	log.Println(exist)
 	return !exist
