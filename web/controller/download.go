@@ -19,10 +19,12 @@ import (
 var (
 	num int
 	dataChan chan *defs.YouTuBeRsq
+	dataMax chan int
 )
 
 func init() {
 	dataChan = make(chan *defs.YouTuBeRsq, config.MyConfig.App.TaskNum)
+	dataMax = make(chan int,config.MyConfig.App.TaskNum)
 	log.Print("队列初始化成功！")
 	num = 0
 }
@@ -55,12 +57,13 @@ func Download(ctx iris.Context) {
 	// 如果存在就加入下载队列
 
 	// 判断队伍是否满载
-	if len(dataChan) >= config.MyConfig.App.TaskNum {
+	if len(dataChan) >= config.MyConfig.App.TaskNum || len(dataMax) >= config.MyConfig.App.TaskNum{
 		// 队伍满载 返回繁忙信息
 		resp.Resp(ctx, defs.TaskError)
 		return
 	} else {
 		dataChan <- &input
+		dataMax <- 1
 
 		resp.Resp(ctx, defs.TaskOk)
 	}
@@ -145,6 +148,7 @@ func dow(data *defs.YouTuBeRsq) {
 	}
 	num += 1
 	clog.Println("下载成功   第: " + strconv.Itoa(num))
+	<- dataMax
 }
 
 
