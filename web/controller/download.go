@@ -39,7 +39,7 @@ func Download(ctx iris.Context) {
 		return
 	}
 
-	clog.Println(input)
+	//clog.Println(input)
 
 	// 判断参数是否错误
 	if strings.Index(input.Url, "https://") == -1 {
@@ -60,6 +60,7 @@ func Download(ctx iris.Context) {
 	// 如果存在就加入下载队列
 
 	// 判断队伍是否满载
+	lock.Lock()
 	fmt.Println(len(config.DataMax))
 	fmt.Println(config.MyConfig.App.TaskNum)
 	if len(config.DataMax) >= config.MyConfig.App.TaskNum {
@@ -68,11 +69,14 @@ func Download(ctx iris.Context) {
 		fmt.Println("进入满载环节")
 		return
 	} else {
+		fmt.Println("===============> 成功分发 ")
 		resp.Resp(ctx, defs.TaskOk)
 		config.DataChan <- &input
 		config.DataMax <- 1
+		fmt.Println("===============> 成功分发 ok ")
 
 	}
+	lock.Unlock()
 
 }
 
@@ -88,13 +92,11 @@ func GetData(ctx iris.Context) {
 }
 
 func DowTask() {
-	count := 1
 	for {
 		select {
 		case data, _ := <-config.DataChan:
-			log.Printf("=====================================> 开启%v", len(config.DataMax))
+			fmt.Printf("=====================================> 开启%v", len(config.DataMax))
 			// 开启下载协程
-			count = count + 1
 			go dow(data)
 		}
 	}
