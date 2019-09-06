@@ -132,6 +132,7 @@ func dow(data *defs.YouTuBeRsq) {
 			}
 
 		}else {
+			time.Sleep(3 * time.Second)
 			break
 		}
 	}
