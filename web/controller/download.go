@@ -39,7 +39,7 @@ func Download(ctx iris.Context) {
 		return
 	}
 
-	clog.Println(input)
+	log.Println(input)
 
 	// 判断参数是否错误
 	if strings.Index(input.Url, "https://") == -1 {
