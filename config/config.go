@@ -1,6 +1,7 @@
 package config
 
 import (
+	"YTB-/defs"
 	"gopkg.in/yaml.v2"
 	"io/ioutil"
 	"log"
@@ -35,6 +36,9 @@ type myconf struct {
 
 var (
 	MyConfig *myconf
+
+	DataChan chan *defs.YouTuBeRsq
+	DataMax  chan int
 )
 
 func init() {
@@ -53,4 +57,7 @@ func init() {
 	if MyConfig.App.Debug {
 		log.Println(MyConfig)
 	}
+
+	DataChan = make(chan *defs.YouTuBeRsq, MyConfig.App.TaskNum)
+	DataMax = make(chan int, MyConfig.App.TaskNum)
 }
