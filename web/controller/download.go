@@ -17,14 +17,14 @@ import (
 )
 
 var (
-	num int
+	num      int
 	dataChan chan *defs.YouTuBeRsq
-	dataMax chan int
+	dataMax  chan int
 )
 
 func init() {
 	dataChan = make(chan *defs.YouTuBeRsq, config.MyConfig.App.TaskNum)
-	dataMax = make(chan int,config.MyConfig.App.TaskNum)
+	dataMax = make(chan int, config.MyConfig.App.TaskNum)
 	log.Print("队列初始化成功！")
 	num = 0
 }
@@ -50,14 +50,14 @@ func Download(ctx iris.Context) {
 	exit := GetDataExit(input.Id)
 	if !exit {
 		// 如果存在就返回任务以存在
-		resp.Resp(ctx, defs.Task{Code:400,Msg:"任务以存在"})
+		resp.Resp(ctx, defs.Task{Code: 400, Msg: "任务以存在"})
 		return
 	}
 
 	// 如果存在就加入下载队列
 
 	// 判断队伍是否满载
-	if len(dataChan) >= config.MyConfig.App.TaskNum || len(dataMax) >= config.MyConfig.App.TaskNum{
+	if len(dataMax) >= config.MyConfig.App.TaskNum {
 		// 队伍满载 返回繁忙信息
 		resp.Resp(ctx, defs.TaskError)
 		return
@@ -103,8 +103,6 @@ func dow(data *defs.YouTuBeRsq) {
 	path := "./video/" + s + "/"
 	pathurl := "/" + s + "/"
 
-
-
 	e = easyutils.DirPing(path)
 	if e != nil {
 		panic(e.Error())
@@ -116,7 +114,7 @@ func dow(data *defs.YouTuBeRsq) {
 
 	k := 0
 	for {
-		e := video_dow.YoutubeDow(data.Url, path + name + ".mp4", "127.0.0.1:8001")
+		e := video_dow.YoutubeDow(data.Url, path+name+".mp4", "127.0.0.1:8001")
 		if e != nil {
 			k += 1
 			if k < 10 {
@@ -134,7 +132,7 @@ func dow(data *defs.YouTuBeRsq) {
 				return
 			}
 
-		}else {
+		} else {
 			time.Sleep(3 * time.Second)
 			break
 		}
@@ -148,9 +146,8 @@ func dow(data *defs.YouTuBeRsq) {
 	}
 	num += 1
 	clog.Println("下载成功   第: " + strconv.Itoa(num))
-	<- dataMax
+	<-dataMax
 }
-
 
 func GetDataExit(id string) bool {
 	data := new(datamodels.Video)
